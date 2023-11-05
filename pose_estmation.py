@@ -25,16 +25,21 @@ def get_pose(width=1000, height=1800):
         img_resp = requests.get(url)
         img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
         img = cv2.imdecode(img_arr, -1)
+        cv2.imshow("Android_cam", img)
         img = imutils.resize(img, width=width, height=height)
-        # cv2.imshow("Android_cam", img)
         # Predict with the model
         # results = model("http://192.168.1.3:8080/shot.jpg")  # predict on an image
+        model_time =  time.time()
         results = model(img, conf=0.7,
                         max_det=1 # one person at time
                         )  # predict on an image
+        plot_time = time.time()
+        print(f"model time: {plot_time-model_time}")
         result0 = results[0]
         annotated_frame = result0.plot()
-        annotated_frame = imutils.resize(annotated_frame, width=width, height=height)
+        print(f"plot time: {time.time()-plot_time}")
+
+        annotated_frame = imutils.resize(annotated_frame, width=width*10, height=height*10)
 
         result0 = result0.numpy()
         head_points = result0.keypoints.data[:, :5]
@@ -63,7 +68,7 @@ def get_pose(width=1000, height=1800):
 if __name__ == "__main__":
     # While loop to continuously fetching data from the Url
     while True:
-        get_pose()
+        get_pose(width=100, height=180)
         # Press Esc key to exit
         if cv2.waitKey(1) == 27:
             break
